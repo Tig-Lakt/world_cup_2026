@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Результаты — World Cup 2026{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Результаты матчей</h1>
+<p class="page-subtitle">FIFA World Cup 2026 • {{ total }} завершённых матчей</p>
+
+<div class="match-list">
+    {% for m in matches %}
+    <div class="match-item" onclick="openMatch({{ m.id }})">
+        <div class="match-item__date">
+            {{ m.match_date.strftime('%d.%m.%Y') if m.match_date else '' }}
+        </div>
+        <div class="match-item__home">{{ m.home_team }}</div>
+        <div class="match-item__score">
+            {% if m.home_score is not none and m.away_score is not none %}
+                {{ m.home_score }} : {{ m.away_score }}
+            {% else %}
+                - : -
+            {% endif %}
+        </div>
+        <div class="match-item__away">{{ m.away_team }}</div>
+        <div class="match-item__status">
+            {% if m.group_letter %}Группа {{ m.group_letter }}{% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if not matches %}
+    <div class="match-empty">
+        <p class="match-empty__icon">🏟️</p>
+        <p>Матчи ещё не сыграны</p>
+        <p class="match-empty__hint">Результаты появятся после начала турнира 11 июня 2026</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Модальное окно -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal__header">
+            <span id="modal-title">Детали матча</span>
+            <button class="modal__close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal__body" id="modal-body">Загрузка...</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function openMatch(matchId) {
+    const overlay = document.getElementById('modal');
+    const body = document.getElementById('modal-body');
+    overlay.classList.add('active');
+    body.innerHTML = 'Загрузка...';
+
+    try {
+        // Источник результатов — championat.com (match_results), не Flashscore.
+        const resp = await fetch(`/api/v1/championat-results/${matchId}`);
+        const data = await resp.json();
+
+        let html = `
+            <div class="modal__teams">
+                <div class="modal__team">${data.home_team}</div>
+                <div class="modal__score">${data.home_score ?? '-'} : ${data.away_score ?? '-'}</div>
+                <div class="modal__team">${data.away_team}</div>
+            </div>
+            <div class="modal__info">
+                <div class="modal__info-item">
+                    <span class="modal__info-label">Дата</span>
+                    <span>${data.match_date ? new Date(data.match_date).toLocaleString('ru-RU') : '—'}</span>
+                </div>
+                <div class="modal__info-item">
+                    <span class="modal__info-label">Группа</span>
+                    <span>${data.group_name || '—'}</span>
+                </div>
+                <div class="modal__info-item">
+                    <span class="modal__info-label">Тур</span>
+                    <span>${data.tour_number || '—'}</span>
+                </div>
+            </div>
+        `;
+
+        // Статистика — показываем строго заданный набор метрик в строго
+        // заданном порядке (а не всё, что вернул парсер). Ключи слева —
+        // как их формирует backend/app/parser/championat.py:parse_match_stats
+        // (нижний регистр, пробелы → "_", "%" → "pct"). Значения справа —
+        // подписи для отображения.
+        const visibleStats = [
+            ['удары_в_створ',      'Удары в створ'],
+            ['удары_от_ворот',     'Удары от ворот'],
+            ['угловые',            'Угловые'],
+            ['фолы',               'Фолы'],
+            ['предупреждения',     'Предупреждения'],
+            ['удаления',           'Удаления'],
+            ['ауты',               'Ауты'],
+            ['оффсайды',           'Офсайды'],
+            ['pct_владения_мячом', '% владения мячом'],
+        ];
+
+        if (data.stats) {
+            const rows = visibleStats
+                .filter(([key]) => data.stats[key])
+                .map(([key, label]) => {
+                    const value = data.stats[key];
+                    return `
+                        <div class="match-stats__row">
+                            <span class="match-stats__val">${value.home ?? '0'}</span>
+                            <span class="match-stats__label">${label}</span>
+                            <span class="match-stats__val match-stats__val--away">${value.away ?? '0'}</span>
+                        </div>
+                    `;
+                });
+
+            if (rows.length > 0) {
+                html += '<div class="match-stats"><h3 class="match-stats__title">Статистика матча</h3>';
+                html += '<div class="match-stats__list">';
+                html += rows.join('');
+                html += '</div></div>';
+            }
+        }
+
+        body.innerHTML = html;
+    } catch (e) {
+        body.innerHTML = 'Ошибка загрузки';
+    }
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+</script>
+{% endblock %}

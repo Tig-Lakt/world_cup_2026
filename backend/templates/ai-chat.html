@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}AI-чат — World Cup 2026{% endblock %}
+
+{% block content %}
+<h1 class="page-title">AI-ассистент</h1>
+<p class="page-subtitle">Спросите про группы, результаты и турнирное положение ЧМ-2026</p>
+
+<div class="chat-warning">
+    ⚠️ Ассистент отвечает на основе данных сайта. Информация может быть неполной или отставать от реального времени.
+</div>
+
+<div class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-bubble chat-bubble--bot">
+            Привет! Спросите меня о группах, результатах матчей или турнирном положении ЧМ-2026.
+        </div>
+    </div>
+    <div class="chat-footer">
+        <input
+            type="text"
+            id="chat-input"
+            class="chat-input"
+            placeholder="Например: кто лидирует в группе A?"
+            autocomplete="off"
+        >
+        <button id="chat-send-btn" class="chat-send-btn">Отправить</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const messagesEl = document.getElementById('chat-messages');
+const inputEl = document.getElementById('chat-input');
+const sendBtn = document.getElementById('chat-send-btn');
+
+function addBubble(text, type) {
+    const bubble = document.createElement('div');
+    bubble.className = `chat-bubble chat-bubble--${type}`;
+    bubble.textContent = text;
+    messagesEl.appendChild(bubble);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return bubble;
+}
+
+function addLoading() {
+    const loading = document.createElement('div');
+    loading.className = 'chat-loading';
+    loading.textContent = 'Ассистент думает...';
+    messagesEl.appendChild(loading);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return loading;
+}
+
+async function sendQuestion() {
+    const question = inputEl.value.trim();
+    if (!question) return;
+
+    addBubble(question, 'user');
+    inputEl.value = '';
+    sendBtn.disabled = true;
+
+    const loadingEl = addLoading();
+
+    try {
+        const resp = await fetch('/api/v1/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question }),
+        });
+
+        loadingEl.remove();
+
+        if (!resp.ok) {
+            addBubble('Не удалось получить ответ. Попробуйте ещё раз.', 'error');
+            return;
+        }
+
+        const data = await resp.json();
+        addBubble(data.answer, 'bot');
+    } catch (e) {
+        loadingEl.remove();
+        addBubble('Ошибка соединения. Проверьте подключение и попробуйте снова.', 'error');
+    } finally {
+        sendBtn.disabled = false;
+    }
+}
+
+sendBtn.addEventListener('click', sendQuestion);
+inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        sendQuestion();
+    }
+});
+</script>
+{% endblock %}

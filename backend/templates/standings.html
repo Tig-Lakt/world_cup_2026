@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Турнирные таблицы — World Cup 2026{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Турнирные таблицы</h1>
+<p class="page-subtitle">FIFA World Cup 2026 • {{ standings|length }} групп</p>
+
+{% if not standings %}
+<div class="match-empty">
+    <p class="match-empty__icon">🏟️</p>
+    <p>Турнирные таблицы пока не сформированы</p>
+    <p class="match-empty__hint">Таблицы появятся после первых матчей группового этапа</p>
+</div>
+{% endif %}
+
+<div class="standings-grid">
+    {% for g in standings %}
+    <div class="group-card">
+        <div class="group-card__title">{{ g.group }}</div>
+        <table class="standings-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Команда</th>
+                    <th title="Игры">И</th>
+                    <th title="Выигрыши">В</th>
+                    <th title="Ничьи">Н</th>
+                    <th title="Поражения">П</th>
+                    <th title="Забито-пропущено">Мячи</th>
+                    <th title="Разница голов">+/-</th>
+                    <th title="Очки">О</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in g.teams %}
+                <tr>
+                    <td>
+                        <span class="position {% if t.position <= 2 %}position--qualify{% elif t.position == 3 %}position--playoff{% else %}position--out{% endif %}">{{ t.position }}</span>
+                    </td>
+                    <td>{{ t.team.name }}</td>
+                    <td>{{ t.played }}</td>
+                    <td>{{ t.won }}</td>
+                    <td>{{ t.drawn }}</td>
+                    <td>{{ t.lost }}</td>
+                    <td>{{ t.goals_for }}-{{ t.goals_against }}</td>
+                    <td>{{ '+' if t.goal_diff > 0 else '' }}{{ t.goal_diff }}</td>
+                    <td><strong>{{ t.points }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

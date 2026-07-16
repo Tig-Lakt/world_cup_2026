@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}World Cup 2026 Tracker{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero__eyebrow">
+        <span class="hero__eyebrow-dot"></span>
+        Стартует 11 июня 2026
+    </div>
+
+    <h1 class="hero__title">
+        World Cup
+        <span class="hero__title-accent">2026</span>
+    </h1>
+
+    <div class="hero__rule"></div>
+
+    <p class="hero__sub">
+        Расписание, результаты, турнирные таблицы и&nbsp;AI-аналитика чемпионата мира по футболу.
+    </p>
+
+    <div class="hero__actions">
+        <a href="/schedule" class="btn-primary">📅 Расписание</a>
+        <a href="/results" class="btn-secondary">📊 Результаты</a>
+        <a href="/standings" class="btn-secondary">🏆 Таблицы</a>
+        <a href="/ai-chat" class="btn-secondary">🤖 ИИ-чат</a>
+    </div>
+</div>
+
+<div class="stats-bar">
+    <div class="stats-bar__item">
+        <div class="stats-bar__num">48</div>
+        <div class="stats-bar__label">Команд</div>
+    </div>
+    <div class="stats-bar__item">
+        <div class="stats-bar__num">104</div>
+        <div class="stats-bar__label">Матчей</div>
+    </div>
+    <div class="stats-bar__item">
+        <div class="stats-bar__num">12</div>
+        <div class="stats-bar__label">Групп</div>
+    </div>
+    <div class="stats-bar__item">
+        <div class="stats-bar__num">3</div>
+        <div class="stats-bar__label">Страны</div>
+    </div>
+</div>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <span class="feature-card__icon">🔄</span>
+        <div class="feature-card__title">Парсинг в реальном времени</div>
+        <p class="feature-card__text">Автоматический сбор данных с Flashscore через Playwright и httpx с антидетект-обходом.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-card__icon">🧠</span>
+        <div class="feature-card__title">AI-агент с RAG</div>
+        <p class="feature-card__text">Поиск по Qdrant, контекст из базы данных, генерация аналитики через OpenAI GPT-4o-mini.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-card__icon">⚡</span>
+        <div class="feature-card__title">Современный стек</div>
+        <p class="feature-card__text">FastAPI · PostgreSQL · Qdrant · Docker · Jinja2 · Playwright</p>
+    </div>
+</div>
+
+<div class="hero-footer">
+    <p class="hero-footer__flags">
+        <strong>🇺🇸 США</strong> &nbsp;·&nbsp; <strong>🇲🇽 Мексика</strong> &nbsp;·&nbsp; <strong>🇨🇦 Канада</strong>
+    </p>
+</div>
+{% endblock %}

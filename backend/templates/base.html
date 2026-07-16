@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}World Cup 2026 Tracker{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="header__logo">
+            <span class="header__logo-icon">⚽</span>
+            WC <span>2026</span>
+        </a>
+        <nav class="header__nav">
+            <a href="/schedule" class="{% if request.path.startswith('/schedule') %}active{% endif %}">Расписание</a>
+            <a href="/results" class="{% if request.path.startswith('/results') %}active{% endif %}">Результаты</a>
+            <a href="/standings" class="{% if request.path.startswith('/standings') %}active{% endif %}">Таблицы</a>
+            <a href="/ai-chat" class="{% if request.path.startswith('/ai-chat') %}active{% endif %}">ИИ-чат</a>
+        </nav>
+        <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <div class="mobile-nav" id="mobile-nav">
+        <a href="/schedule" class="mobile-nav__link {% if request.path.startswith('/schedule') %}active{% endif %}">📅 Расписание</a>
+        <a href="/results" class="mobile-nav__link {% if request.path.startswith('/results') %}active{% endif %}">📊 Результаты</a>
+        <a href="/standings" class="mobile-nav__link {% if request.path.startswith('/standings') %}active{% endif %}">🏆 Таблицы</a>
+        <a href="/ai-chat" class="mobile-nav__link {% if request.path.startswith('/ai-chat') %}active{% endif %}">🤖 ИИ-чат</a>
+    </div>
+    <div class="mobile-nav__overlay" id="mobile-nav-overlay"></div>
+
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        const burger = document.getElementById('burger');
+        const mobileNav = document.getElementById('mobile-nav');
+        const overlay = document.getElementById('mobile-nav-overlay');
+
+        function toggleMenu(open) {
+            burger.classList.toggle('burger--open', open);
+            mobileNav.classList.toggle('mobile-nav--open', open);
+            overlay.classList.toggle('mobile-nav__overlay--open', open);
+            burger.setAttribute('aria-expanded', open);
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        burger.addEventListener('click', () => {
+            toggleMenu(!mobileNav.classList.contains('mobile-nav--open'));
+        });
+        overlay.addEventListener('click', () => toggleMenu(false));
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

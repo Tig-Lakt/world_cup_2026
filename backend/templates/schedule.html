@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Расписание — World Cup 2026{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Расписание матчей</h1>
+<p class="page-subtitle">FIFA World Cup 2026 • {{ total }} матча</p>
+<p class="page-subtitle">Осталось матчей{% if current_group %} в группе {{ current_group }}{% endif %}: {{ remaining }}</p>
+
+<div class="filters">
+    <div class="filters-row">
+        <a href="/schedule" class="filter-btn filter-btn-all {% if not current_group %}active{% endif %}">Расписание всех матчей</a>
+    </div>
+    <div class="filters-row">
+        {% for g in groups %}
+        <a href="/schedule?group={{ g }}" class="filter-btn {% if current_group == g %}active{% endif %}">Группа {{ g }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="match-list">
+    {% for m in matches %}
+    <div class="match-item">
+        <div class="match-item__date">
+            {{ m.match_date.strftime('%d.%m.%Y') if m.match_date else '' }}
+        </div>
+        <div class="match-item__home">{{ m.home_team }}</div>
+        <div class="match-item__score {% if m.status == 'live' %}match-item__score--live{% endif %}">
+            {% if m.home_score is not none and m.away_score is not none %}
+                {{ m.home_score }} : {{ m.away_score }}
+            {% else %}
+                - : -
+            {% endif %}
+        </div>
+        <div class="match-item__away">{{ m.away_team }}</div>
+        <div class="match-item__time">
+            {% if m.match_date %}
+                {{ m.match_date.strftime('%H:%M') }}
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
